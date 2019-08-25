@@ -37,6 +37,11 @@ class CategoryTest extends TestCase
         ]);
         $category->refresh();
 
+        $validator = \Validator::make($category->toArray(), [
+            'id' => 'UUID'
+        ]);
+
+        $this->assertFalse($validator->fails());
         $this->assertEquals('test1', $category->name);
         $this->assertNull($category->description);
         $this->assertTrue($category->is_active);
