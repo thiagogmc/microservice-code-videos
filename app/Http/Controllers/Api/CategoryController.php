@@ -21,8 +21,10 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, $this->rules);
+        $category = Category::create($request->all());
+        $category->refresh();
 
-        return Category::create($request->all());
+        return $category;
     }
 
     public function show(Category $category)
