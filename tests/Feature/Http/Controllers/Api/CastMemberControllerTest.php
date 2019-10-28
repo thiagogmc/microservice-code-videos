@@ -39,7 +39,7 @@ class CastMemberControllerTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJson($this->castMember->toArray());
+            ->assertJson([$this->castMember->toArray()]);
     }
 
     public function testInvalidationData()
@@ -94,7 +94,7 @@ class CastMemberControllerTest extends TestCase
 
     public function testDelete()
     {
-        $response = $this->json('DELETE', route('cast_members.destroy', ['castMember' => $this->castMember->id]));
+        $response = $this->json('DELETE', route('cast_members.destroy', ['cast_member' => $this->castMember->id]));
         $response->assertStatus(204);
 
         $castMember = CastMember::find($this->castMember->id);
@@ -109,7 +109,7 @@ class CastMemberControllerTest extends TestCase
 
     protected function routeUpdate()
     {
-        return route('cast_members.update', ['castMember' => $this->castMember->id]);
+        return route('cast_members.update', ['cast_member' => $this->castMember->id]);
     }
 
     protected function model()

@@ -59,14 +59,14 @@ class GenreControllerTest extends TestCase
     {
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['name'])
-            ->assertJsonFragment([Lang::trans('validation.required', ['attribute' => 'name'])]);
+            ->assertJsonFragment([Lang::get('validation.required', ['attribute' => 'name'])]);
     }
 
     private function assertInvalidationMax(TestResponse $response)
     {
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['name'])
-            ->assertJsonFragment([Lang::trans('validation.max.string', ['attribute' => 'name', 'max' => 255])]);
+            ->assertJsonFragment([Lang::get('validation.max.string', ['attribute' => 'name', 'max' => 255])]);
     }
 
     public function testStore()
