@@ -157,6 +157,7 @@ class VideoControllerTest extends TestCase
     {
         $category = factory(Category::class)->create();
         $genre = factory(Genre::class)->create();
+        $genre->categories()->sync($category->id);
 
         $data = [
             [
@@ -224,6 +225,9 @@ class VideoControllerTest extends TestCase
             ->andReturn([]);
 
         $request = \Mockery::mock(Request::class);
+        $request->shouldReceive('get')
+            ->withAnyArgs()
+            ->andReturnNull();
 
         $controller->shouldReceive('handleRelations')
             ->once()

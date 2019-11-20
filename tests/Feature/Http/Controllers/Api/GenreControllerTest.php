@@ -10,29 +10,35 @@ use Illuminate\Support\Facades\Lang;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\TestValidations;
 
 class GenreControllerTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseMigrations, TestValidations;
+
+    private $genre;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->genre = factory(Genre::class)->create();
+    }
 
     public function testIndex()
     {
-        $genre = factory(Genre::class)->create();
         $response = $this->get(route('genres.index'));
 
         $response
             ->assertStatus(200)
-            ->assertJson([$genre->toArray()]);
+            ->assertJson([$this->genre->toArray()]);
     }
 
     public function testShow()
     {
-        $genre = factory(Genre::class)->create();
-        $genre->refresh();
-        $response = $this->get(route('genres.index', ['genre' => $genre->id]));
+        $response = $this->get(route('genres.index', ['genre' => $this->genre->id]));
         $response
             ->assertStatus(200)
-            ->assertJson([$genre->toArray()]);
+            ->assertJson([$this->genre->toArray()]);
     }
 
     public function testInvalidationData()
@@ -71,8 +77,10 @@ class GenreControllerTest extends TestCase
 
     public function testStore()
     {
+        $category = factory(Category::class)->create();
         $response = $this->json('POST', route('genres.store'), [
-            'name' => 'test'
+            'name' => 'test',
+            'categories_id' => [$category->id]
         ]);
 
         $id = $response->json('id');
@@ -81,9 +89,13 @@ class GenreControllerTest extends TestCase
             ->assertJson($genre->toArray());
         $this->assertTrue($response->json('is_active'));
 
+        $genre->load('categories');
+        $this->assertContains($category->toArray(), $genre->categories->first()->toArray());
+
         $response = $this->json('POST', route('genres.store'), [
             'name' => 'test',
-            'is_active' => false
+            'is_active' => false,
+            'categories_id' => [$category->id]
         ]);
 
         $response
@@ -95,14 +107,16 @@ class GenreControllerTest extends TestCase
 
     public function testUpdate()
     {
+        $category = factory(Category::class)->create();
         $genre = factory(Genre::class)->create([
             'name' => 'test1',
-            'is_active' => false
+            'is_active' => false,
         ]);
 
         $response = $this->json('PUT', route('genres.update', ['genre' => $genre->id]), [
             'name' => 'test2',
-            'is_active' => true
+            'is_active' => true,
+            'categories_id' => [$category->id]
         ]);
 
         $id = $response->json('id');
@@ -115,6 +129,9 @@ class GenreControllerTest extends TestCase
                 'name' => 'test2',
                 'is_active' => true
             ]);
+
+        $genre->load('categories');
+        $this->assertContains($category->toArray(), $genre->categories->first()->toArray());
     }
 
     public function testDelete()
@@ -126,5 +143,37 @@ class GenreControllerTest extends TestCase
 
         $genre = Genre::find($genre->id);
         $this->assertNull($genre);
+    }
+
+    public function testInvalidationCategoriesIdField()
+    {
+        $data = [
+            'categories_id' => 'a'
+        ];
+
+        $this->assertInvalidationInStoreAction($data, 'array');
+        $this->assertInvalidationInUpdateAction($data, 'array');
+
+        $data = [
+            'categories_id' => [100]
+        ];
+
+        $this->assertInvalidationInStoreAction($data, 'exists');
+        $this->assertInvalidationInUpdateAction($data, 'exists');
+    }
+
+    protected function model()
+    {
+        return Genre::class;
+    }
+
+    protected function routeStore()
+    {
+        return route('genres.store');
+    }
+
+    protected function routeUpdate()
+    {
+        return route('genres.update', ['genre' => $this->genre->id]);
     }
 }

@@ -4,6 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\Category;
 use App\Models\Traits\Uuid;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -52,5 +53,11 @@ class CategoryUnitTest extends TestCase
     public function testIncrementingAttribute()
     {
         $this->assertFalse($this->category->getIncrementing());
+    }
+
+    public function testGenreRelationshipIsBelongsToMany()
+    {
+        $this->assertEmpty($this->category->genres);
+        $this->assertTrue(is_a($this->category->genres(), BelongsToMany::class));
     }
 }
