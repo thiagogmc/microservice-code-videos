@@ -1,9 +1,11 @@
 <?php
-
+declare(strict_types=1);
 namespace App\Rules;
 
 use App\Models\Genre;
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Support\Collection;
+use PhpParser\Node\Expr\Array_;
 
 class GenreCategoryRelationshipRule implements Rule
 {
@@ -16,7 +18,7 @@ class GenreCategoryRelationshipRule implements Rule
      */
     public function __construct(array $categoriesId)
     {
-        $this->categoriesId = $categoriesId;
+        $this->categoriesId = array_unique($categoriesId);
     }
 
     /**
@@ -39,20 +41,16 @@ class GenreCategoryRelationshipRule implements Rule
         $matchedCategories = [];
 
         foreach ($value as $genre) {
-            $categoriesOfAGenre = Genre::find($genre);
-            $categoriesOfAGenre = $categoriesOfAGenre
-                ->categories()
-                ->whereIn('category_id', $this->categoriesId)
-                ->pluck('id');
+            $categoriesOfAGenre = $this->getCategoriesOfAGenre($genre);
 
             if (!count($categoriesOfAGenre)) {
                 return false;
             }
 
-            $matchedCategories[] = $categoriesOfAGenre;
-            $matchedCategories = array_unique($matchedCategories);
+            array_push($matchedCategories, ...$categoriesOfAGenre);
         }
 
+        $matchedCategories = array_unique($matchedCategories);
         if (count($matchedCategories) != count($this->categoriesId)) {
             return false;
         }
@@ -67,6 +65,15 @@ class GenreCategoryRelationshipRule implements Rule
      */
     public function message()
     {
-        return 'A genre must be related at least a category.';
+        return trans('validation.genre_category_relationship');
+    }
+
+    protected function getCategoriesOfAGenre($id): Array
+    {
+        return Genre::find($id)
+            ->categories()
+            ->whereIn('category_id', $this->categoriesId)
+            ->pluck('id')
+            ->toArray();
     }
 }

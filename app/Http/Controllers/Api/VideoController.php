@@ -20,11 +20,11 @@ class VideoController extends BasicCrudController
             'opened' => 'boolean',
             'rating' => 'required|in:' . implode(',', Video::RATING_LIST),
             'duration' => 'required|integer',
-            'categories_id' => 'required|array|exists:categories,id',
+            'categories_id' => 'required|array|exists:categories,id,deleted_at,NULL',
             'genres_id' => [
                 'required',
                 'array',
-                'exists:genres,id',
+                'exists:genres,id,deleted_at,NULL',
             ]
         ];
     }
@@ -55,8 +55,7 @@ class VideoController extends BasicCrudController
 
         $video = \DB::transaction(function () use ($request, $validatedData, $self, $video) {
             $video->update($validatedData);
-            $video->categories()->sync($request->categories_id);
-            $video->genres()->sync($request->genres_id);
+            $self->handleRelations($video, $request);
 
             return $video;
         });
