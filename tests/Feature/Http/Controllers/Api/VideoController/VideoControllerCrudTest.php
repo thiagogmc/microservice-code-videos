@@ -1,40 +1,16 @@
 <?php
 
-namespace Tests\Feature\Http\Controllers\Api;
+namespace Tests\Feature\Http\Controllers\Api\VideoController;
 
-use App\Http\Controllers\Api\VideoController;
 use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Video;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
-use Tests\Exceptions\TestException;
-use Tests\TestCase;
 use Tests\Traits\TestSaves;
 use Tests\Traits\TestValidations;
 
-class VideoControllerTest extends TestCase
+class VideoControllerCrudTest extends BaseVideoControllerTestCase
 {
-    use DatabaseMigrations, TestValidations, TestSaves;
-
-    private $video;
-    private $sendData;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->video = factory(Video::class)->create([
-            'opened' => false
-        ]);
-        $this->sendData = [
-            'title' => 'title',
-            'description' => 'description',
-            'year_launched' => 2010,
-            'rating' => Video::RATING_LIST[0],
-            'duration' => 90,
-        ];
-    }
+    use TestValidations, TestSaves;
 
     public function testIndex()
     {
@@ -163,23 +139,6 @@ class VideoControllerTest extends TestCase
         $this->assertInvalidationInUpdateAction($data, 'exists');
     }
 
-    public function testInvalidationVideoFileField()
-    {
-        $file = UploadedFile::fake()->create('video.mp4')->size(3000);
-        $data = [
-            'video_file' => $file
-        ];
-        $this->assertInvalidationInStoreAction($data, 'max.file', ['max' => 2000]);
-        $this->assertInvalidationInUpdateAction($data, 'max.file', ['max' => 2000]);
-
-        $file = UploadedFile::fake()->create('video.mkv');
-        $data = [
-            'video_file' => $file
-        ];
-        $this->assertInvalidationInStoreAction($data, 'mimetypes', ['values' => 'video/mp4']);
-        $this->assertInvalidationInUpdateAction($data, 'mimetypes', ['values' => 'video/mp4']);
-    }
-
     public function testSave()
     {
         $category = factory(Category::class)->create();
@@ -254,26 +213,6 @@ class VideoControllerTest extends TestCase
             );
 
         }
-    }
-
-    public function testSaveWithFileUpload()
-    {
-        $category = factory(Category::class)->create();
-        $genre = factory(Genre::class)->create();
-        $genre->categories()->sync($category->id);
-        $file = UploadedFile::fake()->create('video.mp4');
-
-        $data = $this->sendData + [
-                'categories_id' => [$category->id],
-                'genres_id' => [$genre->id],
-                'video_file' => $file
-            ];
-
-        $response = $this->json('POST', route('videos.store'), $data);
-
-        $response->assertStatus(201);
-        \Storage::assertExists($response->json('id') . '/' . $file->hashName());
-
     }
 
     protected function assertHasCategory($videoId, $categoryId)
@@ -467,20 +406,5 @@ class VideoControllerTest extends TestCase
 
         $this->assertNull(Video::find($this->video->id));
         $this->assertNotNull(Video::withTrashed()->find($this->video->id));
-    }
-
-    protected function routeStore()
-    {
-        return route('videos.store');
-    }
-
-    protected function routeUpdate()
-    {
-        return route('videos.update', ['video' => $this->video->id]);
-    }
-
-    protected function model()
-    {
-        return Video::class;
     }
 }
