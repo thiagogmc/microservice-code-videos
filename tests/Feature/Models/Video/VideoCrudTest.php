@@ -14,6 +14,17 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class VideoCrudTest extends BaseVideoTestCase
 {
+    private $fileFieldsData = [];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        foreach (Video::$fileFields as $field) {
+            $this->fileFieldsData[$field] = "$field.test";
+        }
+
+    }
+
     public function testList()
     {
         factory(Video::class)->create();
@@ -40,12 +51,12 @@ class VideoCrudTest extends BaseVideoTestCase
 
     public function testeCreatedWithBasicFields()
     {
-        $video = Video::create($this->data);
+        $video = Video::create($this->data + $this->fileFieldsData);
         $video->refresh();
 
         $this->assertEquals(36, strlen($video->id));
         $this->assertFalse($video->opened);
-        $this->assertDatabaseHas('videos', $this->data + ['opened' => false]);
+        $this->assertDatabaseHas('videos', $this->data + $this->fileFieldsData + ['opened' => false]);
 
         $video = Video::create($this->data + ['opened' => true]);
         $this->assertTrue($video->opened);
@@ -86,10 +97,11 @@ class VideoCrudTest extends BaseVideoTestCase
     {
         $video = factory(Video::class)->create(
             ['opened' => false]
+            + $this->fileFieldsData
         );
         $video->update($this->data);
         $this->assertFalse($video->opened);
-        $this->assertDatabaseHas('videos', $this->data + ['opened' => false]);
+        $this->assertDatabaseHas('videos', $this->data + $this->fileFieldsData + ['opened' => false]);
 
         $video = factory(Video::class)->create(
             ['opened' => false]
