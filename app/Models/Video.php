@@ -13,6 +13,12 @@ class Video extends Model
 
     const RATING_LIST = ['L', '10', '12', '14', '16', '18'];
 
+    const THUMB_FILE_MAX_SIZE = 1024 * 5; //5 mb
+    const BANNER_FILE_MAX_SIZE = 1024 * 10; //10 mb
+    const VIDEO_FILE_MAX_SIZE = 1024 * 1024 * 1; // 1 gb
+    const TRAILER_FILE_MAX_SIZE = 1024 * 1024 * 50; // 50gb
+
+
     protected $fillable = [
         'title',
         'description',
@@ -108,21 +114,21 @@ class Video extends Model
 
     public function getVideoFileUrlAttribute()
     {
-        return $this->getPublicLink($this->video_file);
+        return $this->video_file ? $this->getPublicLink($this->video_file) : null;
     }
 
     public function getThumbFileUrlAttribute()
     {
-        return $this->getPublicLink($this->thumb_file);
+        return $this->thumb_file ? $this->getPublicLink($this->thumb_file) : null;
     }
 
     public function getBannerFileUrlAttribute()
     {
-        return $this->getPublicLink($this->banner_file);
+        return $this->banner_file ? $this->getPublicLink($this->banner_file) : null;
     }
 
     public function getTrailerFileUrlAttribute()
     {
-        return $this->getPublicLink($this->trailer_file);
+        return $this->trailer_file ? $this->getPublicLink($this->trailer_file) : null;
     }
 }
