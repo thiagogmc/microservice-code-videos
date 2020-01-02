@@ -47,7 +47,10 @@ class VideoTest extends TestCase
                 'created_at',
                 'updated_at',
                 'deleted_at',
-                'video_file'
+                'video_file',
+                'thumb_file',
+                'banner_file',
+                'trailer_file',
             ],
             $videoKeys
         );

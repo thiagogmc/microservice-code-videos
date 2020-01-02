@@ -76,4 +76,10 @@ trait UploadFiles
 
         return $files;
     }
+
+    public function getPublicLink($name)
+    {
+        return \Storage::url("{$this->uploadDir()}/$name");
+    }
+
 }

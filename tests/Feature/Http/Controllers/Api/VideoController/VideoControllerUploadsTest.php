@@ -21,12 +21,12 @@ class VideoControllerUploadsTest extends BaseVideoControllerTestCase
 
     public function testInvalidationVideoFileField()
     {
-        $file = UploadedFile::fake()->create('video.mp4')->size(3000);
+        $file = UploadedFile::fake()->create('video.mp4')->size(50000001);
         $data = [
             'video_file' => $file
         ];
-        $this->assertInvalidationInStoreAction($data, 'max.file', ['max' => 2000]);
-        $this->assertInvalidationInUpdateAction($data, 'max.file', ['max' => 2000]);
+        $this->assertInvalidationInStoreAction($data, 'max.file', ['max' => 50000000]);
+        $this->assertInvalidationInUpdateAction($data, 'max.file', ['max' => 50000000]);
 
         $file = UploadedFile::fake()->create('video.mkv');
         $data = [

@@ -111,7 +111,16 @@ class UploadedFilesUnitTest extends TestCase
             'file2' => $file2->hashName(),
             'other' => 'test'], $attributes);
         $this->assertEquals([$file1, $file2], $files);
+    }
 
+    public function testGetPublicLink()
+    {
+        \Storage::fake();
+        $file = UploadedFile::fake()->create('video1.mp4');
+        $this->obj->uploadFile($file);
 
+        $link = $this->obj->getPublicLink($file->hashName());
+
+        $this->assertEquals(\Storage::url("1/{$file->hashName()}"), $link);
     }
 }
