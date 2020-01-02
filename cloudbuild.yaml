@@ -4,8 +4,8 @@ steps:
   args:
       - kms
       - decrypt
-      - --ciphertext-file=./storage/Credentials/google/service-account-storage.json.enc
-      - --plaintext-file=./storage/Credentials/google/service-account-storage.json
+      - --ciphertext-file=./storage/credentials/google/service-account-storage.json.enc
+      - --plaintext-file=./storage/credentials/google/service-account-storage.json
       - --location=global
       - --keyring=testing-lesson
       - --key=service-account
