@@ -44,6 +44,13 @@ class Video extends Model
     public $incrementing = false;
     public static $fileFields = ['video_file', 'thumb_file', 'banner_file', 'trailer_file'];
 
+    protected $appends = [
+        'video_file_url',
+        'thumb_file_url',
+        'banner_file_url',
+        'trailer_file_url'
+    ];
+
     public static function create(array $attributes = [])
     {
         $files = self::extractFiles($attributes);

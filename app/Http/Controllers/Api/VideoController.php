@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\BasicCrudController;
+use App\Http\Resources\VideoResource;
 use App\Models\Video;
 use App\Rules\GenreCategoryRelationshipRule;
 use Illuminate\Http\Request;
@@ -40,7 +41,9 @@ class VideoController extends BasicCrudController
         $video = Video::create($validateData);
         $video->refresh();
 
-        return $video;
+        $resource = $this->resource();
+
+        return new $resource($video);
     }
 
     public function update(Request $request, $id)
@@ -51,7 +54,9 @@ class VideoController extends BasicCrudController
         $validatedData = $this->validate($request, $this->rulesUpdate());
         $video->update($validatedData);
 
-        return $video;
+        $resource = $this->resource();
+
+        return new $resource($video);
     }
 
     protected function model()
@@ -73,5 +78,15 @@ class VideoController extends BasicCrudController
     {
         $categories_id = is_array($request->get('categories_id')) ? $request->get('categories_id') : [];
         $this->rules['genres_id'][] = new GenreCategoryRelationshipRule($categories_id);
+    }
+
+    protected function resource()
+    {
+        return VideoResource::class;
+    }
+
+    protected function resourceCollection()
+    {
+        return $this->resource();
     }
 }
