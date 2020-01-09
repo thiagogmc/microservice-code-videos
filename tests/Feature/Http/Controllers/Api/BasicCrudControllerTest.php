@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\BasicCrudController;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Hamcrest\Thingy;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -35,8 +36,12 @@ class BasicCrudControllerTest extends TestCase
     {
         /** @var CategoryStub $category */
         $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description']);
-        $result = $this->controller->index()->toArray();
-        $this->assertEquals([$category->toArray()], $result);
+
+        /** @var CategoryResource $result */
+        $result = $this->controller->index();
+        $resultArray = $result->response()->getData(true)['data'][0];
+
+        $this->assertEquals($category->toArray(), $resultArray);
     }
 
     public function testInvalidationDataStore()
@@ -57,11 +62,12 @@ class BasicCrudControllerTest extends TestCase
             ->shouldReceive('all')
             ->once()
             ->andReturn(['name' => 'test_name', 'description' => 'test_description']);
-        $obj = $this->controller->store($request);
+        $resource = $this->controller->store($request);
+        $resourceArray = $resource->response()->getData(true)['data'];
 
         $this->assertEquals(
             CategoryStub::find(1)->toArray(),
-            $obj->toArray()
+            $resourceArray
         );
     }
 
@@ -92,9 +98,10 @@ class BasicCrudControllerTest extends TestCase
     {
         $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description']);
         $category->refresh();
-        $result = $this->controller->show($category->id);
+        $resource = $this->controller->show($category->id);
+        $resourceArray = $resource->response()->getData(true)['data'];
 
-        $this->assertEquals($result->toArray(), $category->toArray());
+        $this->assertEquals($resourceArray, $category->toArray());
     }
 
     public function testUpdate()
@@ -104,9 +111,10 @@ class BasicCrudControllerTest extends TestCase
         $request->shouldReceive('all')
             ->once()
             ->andReturn(['name' => 'test_name', 'description' => 'test_description']);
-        $result = $this->controller->update($request, $category->id);
+        $resource = $this->controller->update($request, $category->id);
+        $resourceArray = $resource->response()->getData(true)['data'];
 
-        $this->assertEquals($result->toArray(), CategoryStub::find(1)->toArray());
+        $this->assertEquals($resourceArray, CategoryStub::find(1)->toArray());
     }
 
     public function testDestroy()
