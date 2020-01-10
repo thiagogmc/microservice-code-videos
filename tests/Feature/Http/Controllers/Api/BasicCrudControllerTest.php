@@ -39,9 +39,9 @@ class BasicCrudControllerTest extends TestCase
 
         /** @var CategoryResource $result */
         $result = $this->controller->index();
-        $resultArray = $result->response()->getData(true)['data'][0];
+        $resultArray = $result->response()->getData(true)['data'];
 
-        $this->assertEquals($category->toArray(), $resultArray);
+        $this->assertEquals([$category->toArray()], $resultArray);
     }
 
     public function testInvalidationDataStore()

@@ -116,7 +116,7 @@ class VideoUploadTest extends BaseVideoTestCase
         }
         $video = factory(Video::class)->create($fileFields);
         $localDriver = config('filesystems.default');
-        $baseUrl = config('filesystems.disks' . $localDriver)['url'];
+        $baseUrl = config('filesystems.disks.' . $localDriver)['url'];
         foreach ($fileFields as $field => $value) {
             $fileUrl = $video->{"{$field}_url"};
             $this->assertEquals("{$baseUrl}/$video->id/$value", $fileUrl);

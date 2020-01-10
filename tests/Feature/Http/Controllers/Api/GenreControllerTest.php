@@ -27,7 +27,17 @@ class GenreControllerTest extends TestCase
         'created_at',
         'updated_at',
         'deleted_at',
-        'categories'
+        'categories' => [
+            '*' => [
+                'id',
+                'name',
+                'description',
+                'is_active',
+                'created_at',
+                'updated_at',
+                'deleted_at'
+            ]
+        ]
     ];
 
     protected function setUp(): void
