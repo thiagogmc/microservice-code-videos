@@ -22,11 +22,6 @@ const useStyles = makeStyles ( (theme: Theme) => ({
 export const Navbar: React.FC = () => {
     const classes = useStyles();
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const open = Boolean(anchorEl)
-    const handleOpen = (event: any) => setAnchorEl(event.currentTarget);
-
-    const handleClose = () => setAnchorEl(null)
     return (
         <AppBar>
             <Toolbar className={classes.toolbar}>
